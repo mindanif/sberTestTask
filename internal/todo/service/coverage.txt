@@ -1,0 +1,26 @@
+mode: set
+sberTestTask/internal/todo/service/service.go:31.65,33.2 1 1
+sberTestTask/internal/todo/service/service.go:35.78,37.53 1 1
+sberTestTask/internal/todo/service/service.go:37.53,40.3 2 1
+sberTestTask/internal/todo/service/service.go:41.2,41.12 1 1
+sberTestTask/internal/todo/service/service.go:44.80,46.16 2 1
+sberTestTask/internal/todo/service/service.go:46.16,49.3 2 0
+sberTestTask/internal/todo/service/service.go:50.2,50.18 1 1
+sberTestTask/internal/todo/service/service.go:53.78,54.53 1 1
+sberTestTask/internal/todo/service/service.go:54.53,57.3 2 0
+sberTestTask/internal/todo/service/service.go:58.2,58.12 1 1
+sberTestTask/internal/todo/service/service.go:61.69,63.51 1 1
+sberTestTask/internal/todo/service/service.go:63.51,66.3 2 0
+sberTestTask/internal/todo/service/service.go:67.2,67.12 1 1
+sberTestTask/internal/todo/service/service.go:70.129,73.16 2 1
+sberTestTask/internal/todo/service/service.go:73.16,76.3 2 1
+sberTestTask/internal/todo/service/service.go:78.2,79.27 2 1
+sberTestTask/internal/todo/service/service.go:79.27,81.3 1 1
+sberTestTask/internal/todo/service/service.go:82.2,82.22 1 1
+sberTestTask/internal/todo/service/service.go:82.22,84.3 1 0
+sberTestTask/internal/todo/service/service.go:86.2,87.14 2 1
+sberTestTask/internal/todo/service/service.go:87.14,89.3 1 0
+sberTestTask/internal/todo/service/service.go:91.2,92.16 2 1
+sberTestTask/internal/todo/service/service.go:92.16,95.3 2 1
+sberTestTask/internal/todo/service/service.go:96.2,100.8 1 1
+sberTestTask/internal/todo/service/service.go:104.105,106.2 1 1

@@ -1,0 +1,205 @@
+basePath: /
+definitions:
+  todo.ErrorResponse:
+    properties:
+      message:
+        example: Error
+        type: string
+    type: object
+  todo.Pages:
+    properties:
+      count_page:
+        type: integer
+      cur_page:
+        type: integer
+      tasks:
+        items:
+          $ref: '#/definitions/todo.Task'
+        type: array
+    type: object
+  todo.Task:
+    properties:
+      completed:
+        type: boolean
+      description:
+        type: string
+      due_date:
+        example: "2024-06-07T15:00:00Z"
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is a sample server Petstore server.
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /tasks:
+    get:
+      description: Get a list of tasks with optional filters
+      parameters:
+      - description: Filter by completion status
+        in: query
+        name: completed
+        type: boolean
+      - description: Filter by due date
+        example: "2024-06-07"
+        format: date
+        in: query
+        name: date
+        type: string
+      - description: Number of tasks per page
+        in: query
+        name: limit
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of tasks
+          schema:
+            $ref: '#/definitions/todo.Pages'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/todo.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/todo.ErrorResponse'
+      summary: List tasks
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: Create a new task with the input payload
+      parameters:
+      - description: Task to create
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/todo.Task'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Task created successfully
+          schema:
+            $ref: '#/definitions/todo.Task'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/todo.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/todo.ErrorResponse'
+      summary: Create a new task
+      tags:
+      - tasks
+  /tasks/{id}:
+    delete:
+      description: Delete a task by ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/todo.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/todo.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/todo.ErrorResponse'
+      summary: Delete a task
+      tags:
+      - tasks
+    get:
+      description: Get a task by ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Task found
+          schema:
+            $ref: '#/definitions/todo.Task'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/todo.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/todo.ErrorResponse'
+      summary: Get a task by ID
+      tags:
+      - tasks
+    put:
+      consumes:
+      - application/json
+      description: Update a task with the input payload
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Task updates
+        in: body
+        name: task
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Task updated successfully
+          schema:
+            $ref: '#/definitions/todo.Task'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/todo.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/todo.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/todo.ErrorResponse'
+      summary: Update a task
+      tags:
+      - tasks
+swagger: "2.0"

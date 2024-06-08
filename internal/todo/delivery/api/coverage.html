@@ -1,0 +1,318 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>api: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">sberTestTask/internal/todo/delivery/api/handler.go (86.1%)</option>
+				
+				<option value="file1">sberTestTask/internal/todo/delivery/api/routes.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package api
+
+import (
+        "encoding/json"
+        "errors"
+        "github.com/go-chi/chi/v5"
+        "net/http"
+        "sberTestTask/internal/todo"
+        "sberTestTask/internal/todo/service"
+        "strconv"
+        "time"
+)
+
+const (
+        defaultPage  = 1
+        defaultLimit = 10
+)
+
+type Handler struct {
+        uc service.TodoUsecase
+}
+
+func NewHandler(uc service.TodoUsecase) *Handler <span class="cov8" title="1">{
+        return &amp;Handler{uc: uc}
+}</span>
+
+func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        var task todo.Task
+        if err := json.NewDecoder(r.Body).Decode(&amp;task); err != nil </span><span class="cov8" title="1">{
+                http.Error(w, err.Error(), http.StatusBadRequest)
+                return
+        }</span>
+        <span class="cov8" title="1">if err := validateTask(&amp;task); err != nil </span><span class="cov8" title="1">{
+                http.Error(w, err.Error(), http.StatusBadRequest)
+                return
+        }</span>
+        //task.DueDate = time.Now() // Пример установки даты
+        <span class="cov8" title="1">if err := h.uc.CreateTask(r.Context(), &amp;task); err != nil </span><span class="cov8" title="1">{
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                return
+        }</span>
+        <span class="cov8" title="1">w.WriteHeader(http.StatusCreated)
+        json.NewEncoder(w).Encode(task)</span>
+}
+
+func (h *Handler) GetTask(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        id, err := strconv.Atoi(chi.URLParam(r, "id"))
+        if err != nil </span><span class="cov8" title="1">{
+                http.Error(w, err.Error(), http.StatusBadRequest)
+                return
+        }</span>
+        <span class="cov8" title="1">task, err := h.uc.GetTask(r.Context(), id)
+        if err != nil </span><span class="cov8" title="1">{
+                http.Error(w, err.Error(), http.StatusNotFound)
+                return
+        }</span>
+        <span class="cov8" title="1">json.NewEncoder(w).Encode(task)</span>
+}
+
+func (h *Handler) UpdateTask(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        id, err := strconv.Atoi(chi.URLParam(r, "id"))
+        if err != nil </span><span class="cov0" title="0">{
+                http.Error(w, err.Error(), http.StatusBadRequest)
+                return
+        }</span>
+
+        <span class="cov8" title="1">existingTask, err := h.uc.GetTask(r.Context(), id)
+        if err != nil </span><span class="cov8" title="1">{
+                http.Error(w, "task not found", http.StatusNotFound)
+                return
+        }</span>
+
+        <span class="cov8" title="1">var updates map[string]interface{}
+        if err := json.NewDecoder(r.Body).Decode(&amp;updates); err != nil </span><span class="cov8" title="1">{
+                http.Error(w, err.Error(), http.StatusBadRequest)
+                return
+        }</span>
+
+        <span class="cov8" title="1">updatedTask, err := applyUpdates(*existingTask, updates)
+        if err != nil </span><span class="cov0" title="0">{
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := h.uc.UpdateTask(r.Context(), &amp;updatedTask); err != nil </span><span class="cov8" title="1">{
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                return
+        }</span>
+
+        <span class="cov8" title="1">w.WriteHeader(http.StatusOK)
+        json.NewEncoder(w).Encode(updatedTask)</span>
+}
+
+func (h *Handler) DeleteTask(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        id, err := strconv.Atoi(chi.URLParam(r, "id"))
+        if err != nil </span><span class="cov8" title="1">{
+                http.Error(w, err.Error(), http.StatusBadRequest)
+                return
+        }</span>
+        <span class="cov8" title="1">if _, err := h.uc.GetTask(r.Context(), id); err != nil </span><span class="cov8" title="1">{
+                http.Error(w, service.ErrIdNotFound.Error(), http.StatusNotFound)
+                return
+        }</span>
+        <span class="cov8" title="1">err = h.uc.DeleteTask(r.Context(), id)
+        if err != nil </span><span class="cov8" title="1">{
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                return
+        }</span>
+        <span class="cov8" title="1">w.WriteHeader(http.StatusOK)</span>
+}
+
+func (h *Handler) ListTasks(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+
+        var completed *bool
+        if completedStr := r.URL.Query().Get("completed"); completedStr != "" </span><span class="cov8" title="1">{
+                completedVal, err := strconv.ParseBool(completedStr)
+                if err != nil </span><span class="cov8" title="1">{
+                        http.Error(w, "invalid completed flag", http.StatusBadRequest)
+                        return
+                }</span>
+                <span class="cov8" title="1">completed = &amp;completedVal</span>
+        }
+
+        <span class="cov8" title="1">var dueDate *time.Time
+        if dateStr := r.URL.Query().Get("date"); dateStr != "" </span><span class="cov8" title="1">{
+                parsedDate, err := time.Parse(time.DateOnly, dateStr)
+                if err != nil </span><span class="cov8" title="1">{
+                        http.Error(w, "invalid date format", http.StatusBadRequest)
+                        return
+                }</span>
+                <span class="cov8" title="1">dueDate = &amp;parsedDate</span>
+        }
+
+        <span class="cov8" title="1">limitStr := r.URL.Query().Get("limit")
+        limit, err := strconv.Atoi(limitStr)
+        if err != nil || limit &lt;= 0 </span><span class="cov8" title="1">{
+                limit = defaultLimit
+        }</span>
+
+        <span class="cov8" title="1">pageStr := r.URL.Query().Get("page")
+        page, err := strconv.Atoi(pageStr)
+        if err != nil || page &lt;= 0 </span><span class="cov8" title="1">{
+                page = defaultPage
+        }</span>
+
+        <span class="cov8" title="1">pages, err := h.uc.ListTasks(r.Context(), completed, dueDate, limit, page)
+        if err != nil </span><span class="cov8" title="1">{
+                http.Error(w, "error retrieving tasks", http.StatusInternalServerError)
+                return
+        }</span>
+        <span class="cov8" title="1">json.NewEncoder(w).Encode(pages)</span>
+}
+func applyUpdates(task todo.Task, updates map[string]interface{}) (todo.Task, error) <span class="cov8" title="1">{
+        for key, value := range updates </span><span class="cov8" title="1">{
+                switch key </span>{
+                case "title":<span class="cov8" title="1">
+                        if v, ok := value.(string); ok </span><span class="cov8" title="1">{
+                                task.Title = v
+                        }</span>
+                case "description":<span class="cov0" title="0">
+                        if v, ok := value.(string); ok </span><span class="cov0" title="0">{
+                                task.Description = v
+                        }</span>
+                case "due_date":<span class="cov0" title="0">
+                        if v, ok := value.(string); ok </span><span class="cov0" title="0">{
+                                dueDate, err := time.Parse(time.RFC3339, v)
+                                if err != nil </span><span class="cov0" title="0">{
+                                        return task, err
+                                }</span>
+                                <span class="cov0" title="0">task.DueDate = &amp;dueDate</span>
+                        }
+                case "completed":<span class="cov0" title="0">
+                        if v, ok := value.(bool); ok </span><span class="cov0" title="0">{
+                                task.Completed = v
+                        }</span>
+                }
+        }
+        <span class="cov8" title="1">return task, nil</span>
+}
+func validateTask(task *todo.Task) error <span class="cov8" title="1">{
+        if task.Title == "" </span><span class="cov8" title="1">{
+                return errors.New("title cannot be empty")
+        }</span>
+        <span class="cov8" title="1">if task.DueDate == nil </span><span class="cov0" title="0">{
+                return errors.New("missed data field")
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package api
+
+import (
+        "github.com/go-chi/chi/v5"
+        "github.com/go-chi/chi/v5/middleware"
+        httpSwagger "github.com/swaggo/http-swagger"
+)
+
+func RegisterRoutes(r *chi.Mux, handler *Handler) <span class="cov0" title="0">{
+        r.Use(middleware.Logger)
+
+        r.Post("/tasks", handler.CreateTask)
+
+        r.Get("/tasks", handler.ListTasks)
+
+        r.Get("/tasks/{id}", handler.GetTask)
+
+        r.Put("/tasks/{id}", handler.UpdateTask)
+
+        r.Delete("/tasks/{id}", handler.DeleteTask)
+
+        r.Get("/swagger/*", httpSwagger.WrapHandler)
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

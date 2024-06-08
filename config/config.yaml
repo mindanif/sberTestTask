@@ -1,0 +1,4 @@
+database:
+  url: "postgres://root:secret@localhost:5432/TodoList?sslmode=disable"
+server:
+  port: "8080"
